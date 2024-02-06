@@ -25,11 +25,22 @@ namespace AppLocalizador
             
             try
             {
-                var endereco = ;
-                var location = await Geolocation.GetLocationAsync(endereco);
-                var locationinfo = new Location(location.Latitude, location.Longitude);
-                var options = new MapLaunchOptions { Name = "Meu local" };
-                await Map.OpenAsync(locationinfo, options);
+                var location = await Geolocation.GetLocationAsync(new GeolocationRequest()
+                { DesiredAccuracy = GeolocationAccuracy.Best });
+                var placemarks = await Geocoding.GetPlacemarksAsync(location.Latitude, location.Longitude);
+
+                var placemark = placemarks?.FirstOrDefault();
+                if (placemark != null)
+                {
+                    var geocodeAddress =
+                            $"AdminArea:{txtUF.Text}\n" +
+                            $"CountryName:{txtPais.Text}\n" +
+                            $"Locality:{txtCidade.Text}\n" +
+                            $"SubLocality:{txtLocal.Text}\n";
+
+                    await Map.OpenAsync(location.Latitude, location.Longitude, new MapLaunchOptions { Name = geocodeAddress });
+
+                }
             }
             catch (FeatureNotEnabledException fnsEx)
             {
